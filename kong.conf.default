@@ -325,6 +325,10 @@
                                  # - `X-Kong-Upstream-Latency`: Time taken
                                  #   (in milliseconds) by the upstream
                                  #   service to send response headers.
+                                 # - `X-Kong-Response-Latency`: Time taken (in
+                                 #   milliseconds)
+                                 #   by Kong to process a request and run all
+                                 #   plugins before sending a response.
                                  # - `X-Kong-Upstream-Status`: The HTTP status
                                  #   code returned by the upstream service.
                                  #   This is particularly useful for clients to
@@ -332,8 +336,9 @@
                                  #   response is rewritten by a plugin.
                                  # - `server_tokens`: Same as specifying both
                                  #   `Server` and `Via`.
-                                 # - `latency_tokens`: Same as specifying both
-                                 #   `X-Kong-Proxy-Latency` and
+                                 # - `latency_tokens`: Same as specifying
+                                 #   `X-Kong-Proxy-Latency`,
+                                 #   `X-Kong-Upstream-Latency`, and
                                  #   `X-Kong-Upstream-Latency`.
                                  #
                                  # In addition to those, this value can be set

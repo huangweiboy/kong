@@ -75,6 +75,7 @@ return {
     HOST_OVERRIDE = "X-Host-Override",
     PROXY_LATENCY = "X-Kong-Proxy-Latency",
     UPSTREAM_LATENCY = "X-Kong-Upstream-Latency",
+    RESPONSE_LATENCY = "X-Kong-Response-Latency",
     UPSTREAM_STATUS = "X-Kong-Upstream-Status",
     CONSUMER_ID = "X-Consumer-ID",
     CONSUMER_CUSTOM_ID = "X-Consumer-Custom-ID",
