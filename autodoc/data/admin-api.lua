@@ -60,6 +60,28 @@ return {
         care should be taken when setting up Kong environments to avoid undue public
         exposure of this API. See [this document][secure-admin-api] for a discussion
         of methods to secure the Admin API.
+
+        The most of the Kong admin API is auto-generated based on entity schemas,
+        and in general the following are available (but there may be exceptions,
+        additional or even disabled endpoints):
+
+        1. `/{collection}`
+        2. `/{collection}/{name-or-id}`
+        3. `/{collection}/{name-or-id}/{referencing-collection}`
+        4. `/{collection}/{name-or-id}/{referencing-collection}/{name-or-id}`
+        5. `/{collection}/{name-or-id}/{foreign-entity}`
+
+        Here are examples of such URIs:
+
+        1. `/services`
+        2. `/services/example-service`
+        3. `/services/example-service/routes`
+        3. `/services/example-service/routes/example-route`
+        5. `/routes/example-route/service`
+
+        Out of those 1 and 3 are `collection` endpoints where you can send `GET` and `POST`
+        requests. 2, 4 and 5 are `entity` endpoints where you can send `GET`, `PATCH`,
+        `PUT` and `DELETE` requests.
       ]]
     }, {
       title = [[Supported Content Types]],
