@@ -110,7 +110,7 @@ end
 -- odd entries are 200s, event entries are 500s
 -- @param test_log (optional, default fals) Produce detailed logs
 -- @return Returns the number of successful and failure responses.
-local function http_server(host, port, counts, test_log, protocol)
+local function http_server(host, port, counts, test_log, protocol, check_hostname)
   -- This is a "hard limit" for the execution of tests that launch
   -- the custom http_server
   local hard_timeout = ngx.now() + 300
@@ -120,7 +120,7 @@ local function http_server(host, port, counts, test_log, protocol)
               "spec/fixtures/balancer_https_server.lua " ..
               protocol .. " " .. host .. " " .. port ..
               " \"" .. cjson.encode(counts):gsub('"', '\\"') .. "\" " ..
-              (test_log or "") .. " &"
+              (test_log or "false") .. " ".. (check_hostname or "false") .. " &"
   os.execute(cmd)
 
   repeat
@@ -900,6 +900,45 @@ for _, strategy in helpers.each_strategy() do
             })
             assert.Truthy(ok)
             assert.Truthy(resp)
+          end)
+
+          it("properly set the host header", function()
+            begin_testcase_setup(strategy, bp)
+            local upstream_name, upstream_id = add_upstream(bp, { hostname = "localhost" })
+            local target_port = add_target(bp, upstream_id, localhost)
+            local api_host = add_api(bp, upstream_name)
+            end_testcase_setup(strategy, bp)
+
+            local server = http_server("localhost", target_port, { 5 }, "false", "http", "true")
+
+            local oks, fails, last_status = client_requests(5, api_host)
+            assert.same(200, last_status)
+            assert.same(5, oks)
+            assert.same(0, fails)
+
+            local _, server_oks, server_fails = server:done()
+            assert.same(5, server_oks)
+            assert.same(0, server_fails)
+          end)
+
+          it("fail with wrong host header", function()
+            begin_testcase_setup(strategy, bp)
+            local upstream_name, upstream_id = add_upstream(bp, { hostname = "wrong.host.test" })
+            local target_port = add_target(bp, upstream_id, localhost)
+            local api_host = add_api(bp, upstream_name)
+            end_testcase_setup(strategy, bp)
+
+            local server = http_server("localhost", target_port, { 5 }, "false", "http", "true")
+
+            local oks, fails, last_status = client_requests(5, api_host)
+            assert.same(400, last_status)
+            assert.same(0, oks)
+            assert.same(5, fails)
+
+            -- oks and fails must be 0 as localhost should not receive any request
+            local _, server_oks, server_fails = server:done()
+            assert.same(0, server_oks)
+            assert.same(0, server_fails)
           end)
 
           -- #db == disabled for database=off, because it tests

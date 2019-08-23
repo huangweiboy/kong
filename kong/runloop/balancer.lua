@@ -868,7 +868,11 @@ local function execute(target, ctx)
 
   target.ip = ip
   target.port = port
-  target.hostname = hostname
+  if upstream and upstream.hostname ~= nil then
+    target.hostname = upstream.hostname
+  else
+    target.hostname = hostname
+  end
   return true
 end
 
